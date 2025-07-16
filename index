@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="Modern Age Tracker App - Track ages of multiple people with precision">
+    <meta name="keywords" content="age tracker, birthday tracker, age calculator">
+    <meta name="author" content="Age Tracker Pro">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Age Tracker Pro</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+```
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+        overflow-x: hidden;
+    }
+
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .header {
+        text-align: center;
+        margin-bottom: 30px;
+        animation: slideDown 0.8s ease-out;
+    }
+
+    .header h1 {
+        color: white;
+        font-size: 2.5em;
+        font-weight: 700;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        margin-bottom: 10px;
+    }
+
+    .header p {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 1.1em;
+    }
+
+    .controls {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+        animation: slideUp 0.8s ease-out 0.2s both;
+    }
+
+    .search-container {
+        flex: 1;
+        min-width: 250px;
+        position: relative;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 15px 20px;
+        border: none;
+        border-radius: 15px;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        font-size: 16px;
+        outline: none;
+        backdrop-filter: blur(5px);
+        transition: all 0.3s ease;
+    }
+
+    .search-input::placeholder {
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    .search-input:focus {
+        background: rgba(255, 255, 255, 0.3);
+        transform: scale(1.02);
+    }
+
+    .add-btn {
+        padding: 15px 30px;
+        background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+        color: white;
+        border: none;
+        border-radius: 15px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+    }
+
+    .add-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+    }
+
+    .add-btn:active {
+        transform: translateY(0);
+    }
+
+    .person-list {
+        display: grid;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .person-card {
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 20px;
+        padding: 25px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
+        animation: fadeInUp 0.5s ease-out;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .person-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    }
+
+    .person-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
+        border-radius: 20px 20px 0 0;
+    }
+
+    .person-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .person-name {
+        font-size: 1.8em;
+        font-weight: 700;
+        color: white;
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+    }
+
+    .person-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .action-btn {
+        padding: 8px 12px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .edit-btn {
+        background: linear-gradient(45deg, #4ecdc4, #44a08d);
+        color: white;
+    }
+
+    .remove-btn {
+        background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+        color: white;
+    }
+
+    .move-up-btn {
+        background: linear-gradient(45deg, #45b7d1, #2980b9);
+        color: white;
+    }
+
+    .move-down-btn {
+        background: linear-gradient(45deg, #f39c12, #e67e22);
+        color: white;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .age-info {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+
+    .age-unit {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 15px;
+        border-radius: 15px;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .age-unit:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: scale(1.05);
+    }
+
+    .age-number {
+        font-size: 2em;
+        font-weight: 700;
+        color: white;
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+    }
+
+    .age-label {
+        font-size: 0.9em;
+        color: rgba(255, 255, 255, 0.8);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-top: 5px;
+    }
+
+    .birthdate {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 1.1em;
+        text-align: center;
+        font-style: italic;
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(5px);
+        z-index: 1000;
+        animation: fadeIn 0.3s ease-out;
+    }
+
+    .modal-content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        padding: 30px;
+        border-radius: 20px;
+        width: 90%;
+        max-width: 400px;
+        animation: scaleIn 0.3s ease-out;
+    }
+
+    .modal h2 {
+        color: #333;
+        margin-bottom: 20px;
+        font-size: 1.8em;
+        text-align: center;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #555;
+        font-weight: 600;
+    }
+
+    .form-group input {
+        width: 100%;
+        padding: 15px;
+        border: 2px solid #ddd;
+        border-radius: 10px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        outline: none;
+    }
+
+    .form-group input:focus {
+        border-color: #667eea;
+        transform: scale(1.02);
+    }
+
+    .modal-actions {
+        display: flex;
+        gap: 15px;
+        justify-content: flex-end;
+    }
+
+    .modal-btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .save-btn {
+        background: linear-gradient(45deg, #4ecdc4, #44a08d);
+        color: white;
+    }
+
+    .cancel-btn {
+        background: linear-gradient(45deg, #95a5a6, #7f8c8d);
+        color: white;
+    }
+
+    .modal-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: rgba(255, 255, 255, 0.8);
+        animation: fadeIn 0.5s ease-out;
+    }
+
+    .empty-state h3 {
+        font-size: 2em;
+        margin-bottom: 15px;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-50px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(50px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes scaleIn {
+        from {
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.8);
+        }
+        to {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+    }
+
+    @media (max-width: 600px) {
+        .controls {
+            flex-direction: column;
+        }
+        
+        .person-actions {
+            justify-content: center;
+        }
+        
+        .age-info {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+</style>
+```
+
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Age Tracker Pro</h1>
+            <p>Track ages of your loved ones with precision</p>
+        </div>
+
+```
+    <div class="controls">
+        <div class="search-container">
+            <input type="text" class="search-input" placeholder="Search people..." id="searchInput">
+        </div>
+        <button class="add-btn" onclick="openModal()">Add Person</button>
+    </div>
+
+    <div class="person-list" id="personList">
+        <div class="empty-state">
+            <h3>No people added yet</h3>
+            <p>Click "Add Person" to start tracking ages</p>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="modal">
+    <div class="modal-content">
+        <h2 id="modalTitle">Add Person</h2>
+        <form id="personForm">
+            <div class="form-group">
+                <label for="personName">Name:</label>
+                <input type="text" id="personName" required>
+            </div>
+            <div class="form-group">
+                <label for="personBirthdate">Birth Date:</label>
+                <input type="date" id="personBirthdate" required>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="modal-btn cancel-btn" onclick="closeModal()">Cancel</button>
+                <button type="submit" class="modal-btn save-btn">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    let people = [];
+    let editingIndex = -1;
+    let filteredPeople = [];
+
+    // Load data from localStorage on page load
+    function loadData() {
+        try {
+            const savedData = localStorage.getItem('ageTrackerData');
+            if (savedData) {
+                people = JSON.parse(savedData);
+                filteredPeople = [...people];
+            }
+        } catch (error) {
+            console.log('No saved data found or error loading data');
+            people = [];
+            filteredPeople = [];
+        }
+        updateAges();
+        renderPeople();
+    }
+
+    // Save data to localStorage
+    function saveData() {
+        try {
+            localStorage.setItem('ageTrackerData', JSON.stringify(people));
+        } catch (error) {
+            console.log('Error saving data');
+        }
+    }
+
+    // Calculate age
+    function calculateAge(birthdate) {
+        const today = new Date();
+        const birth = new Date(birthdate);
+        
+        let years = today.getFullYear() - birth.getFullYear();
+        let months = today.getMonth() - birth.getMonth();
+        let days = today.getDate() - birth.getDate();
+        
+        if (days < 0) {
+            months--;
+            const prevMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+            days += prevMonth.getDate();
+        }
+        
+        if (months < 0) {
+            years--;
+            months += 12;
+        }
+        
+        return { years, months, days };
+    }
+
+    // Update ages for all people
+    function updateAges() {
+        people.forEach(person => {
+            person.age = calculateAge(person.birthdate);
+        });
+    }
+
+    // Open modal
+    function openModal(index = -1) {
+        editingIndex = index;
+        const modal = document.getElementById('modal');
+        const modalTitle = document.getElementById('modalTitle');
+        const nameInput = document.getElementById('personName');
+        const birthdateInput = document.getElementById('personBirthdate');
+        
+        if (index >= 0) {
+            modalTitle.textContent = 'Edit Person';
+            nameInput.value = people[index].name;
+            birthdateInput.value = people[index].birthdate;
+        } else {
+            modalTitle.textContent = 'Add Person';
+            nameInput.value = '';
+            birthdateInput.value = '';
+        }
+        
+        modal.style.display = 'block';
+        nameInput.focus();
+    }
+
+    // Close modal
+    function closeModal() {
+        document.getElementById('modal').style.display = 'none';
+        editingIndex = -1;
+    }
+
+    // Handle form submission
+    document.getElementById('personForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const name = document.getElementById('personName').value.trim();
+        const birthdate = document.getElementById('personBirthdate').value;
+        
+        if (!name || !birthdate) return;
+        
+        const person = {
+            name,
+            birthdate,
+            age: calculateAge(birthdate)
+        };
+        
+        if (editingIndex >= 0) {
+            people[editingIndex] = person;
+        } else {
+            people.push(person);
+        }
+        
+        saveData();
+        applySearch();
+        renderPeople();
+        closeModal();
+    });
+
+    // Remove person
+    function removePerson(index) {
+        const actualIndex = people.findIndex(p => p === filteredPeople[index]);
+        if (actualIndex >= 0) {
+            people.splice(actualIndex, 1);
+            saveData();
+            applySearch();
+            renderPeople();
+        }
+    }
+
+    // Edit person
+    function editPerson(index) {
+        const actualIndex = people.findIndex(p => p === filteredPeople[index]);
+        if (actualIndex >= 0) {
+            openModal(actualIndex);
+        }
+    }
+
+    // Move person up
+    function movePersonUp(index) {
+        const actualIndex = people.findIndex(p => p === filteredPeople[index]);
+        if (actualIndex > 0) {
+            [people[actualIndex], people[actualIndex - 1]] = [people[actualIndex - 1], people[actualIndex]];
+            saveData();
+            applySearch();
+            renderPeople();
+        }
+    }
+
+    // Move person down
+    function movePersonDown(index) {
+        const actualIndex = people.findIndex(p => p === filteredPeople[index]);
+        if (actualIndex < people.length - 1 && actualIndex >= 0) {
+            [people[actualIndex], people[actualIndex + 1]] = [people[actualIndex + 1], people[actualIndex]];
+            saveData();
+            applySearch();
+            renderPeople();
+        }
+    }
+
+    // Apply search filter
+    function applySearch() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        filteredPeople = people.filter(person => 
+            person.name.toLowerCase().includes(searchTerm)
+        );
+    }
+
+    // Render people list
+    function renderPeople() {
+        const personList = document.getElementById('personList');
+        
+        if (filteredPeople.length === 0) {
+            personList.innerHTML = `
+                <div class="empty-state">
+                    <h3>${people.length === 0 ? 'No people added yet' : 'No matching results'}</h3>
+                    <p>${people.length === 0 ? 'Click "Add Person" to start tracking ages' : 'Try adjusting your search term'}</p>
+                </div>
+            `;
+            return;
+        }
+        
+        personList.innerHTML = filteredPeople.map((person, index) => `
+            <div class="person-card">
+                <div class="person-header">
+                    <div class="person-name">${person.name}</div>
+                    <div class="person-actions">
+                        <button class="action-btn edit-btn" onclick="editPerson(${index})">Edit</button>
+                        <button class="action-btn remove-btn" onclick="removePerson(${index})">Remove</button>
+                        <button class="action-btn move-up-btn" onclick="movePersonUp(${index})">↑</button>
+                        <button class="action-btn move-down-btn" onclick="movePersonDown(${index})">↓</button>
+                    </div>
+                </div>
+                <div class="age-info">
+                    <div class="age-unit">
+                        <div class="age-number">${person.age.years}</div>
+                        <div class="age-label">Years</div>
+                    </div>
+                    <div class="age-unit">
+                        <div class="age-number">${person.age.months}</div>
+                        <div class="age-label">Months</div>
+                    </div>
+                    <div class="age-unit">
+                        <div class="age-number">${person.age.days}</div>
+                        <div class="age-label">Days</div>
+                    </div>
+                </div>
+                <div class="birthdate">Born: ${new Date(person.birthdate).toLocaleDateString()}</div>
+            </div>
+        `).join('');
+    }
+
+    // Search functionality
+    document.getElementById('searchInput').addEventListener('input', function() {
+        applySearch();
+        renderPeople();
+    });
+
+    // Close modal when clicking outside
+    window.addEventListener('click', function(e) {
+        const modal = document.getElementById('modal');
+        if (e.target === modal) {
+            closeModal();
+        }
+    });
+
+    // Initialize app
+    loadData();
+    
+    // Update ages every minute
+    setInterval(() => {
+        updateAges();
+        renderPeople();
+    }, 60000);
+</script>
+```
+
+</body>
+</html>
