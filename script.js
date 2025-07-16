@@ -1,0 +1,1 @@
+// (JavaScript logic extracted from <script> tag)

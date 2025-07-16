@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Age Tracker Pro</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🎂 Age Tracker Pro</h1>
+
+        <div class="input-section">
+            <div class="input-group">
+                <input type="text" id="nameInput" placeholder="Enter person's name" />
+            </div>
+            <div class="input-group">
+                <input type="date" id="birthdateInput" />
+            </div>
+            <button class="btn btn-add" onclick="addPerson()">Add Person</button>
+        </div>
+
+        <div class="search-section">
+            <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search people..." onkeyup="searchPeople()" />
+        </div>
+
+        <div class="person-list" id="personList">
+            <div class="empty-state">
+                <div>Add someone to start tracking their age!</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
