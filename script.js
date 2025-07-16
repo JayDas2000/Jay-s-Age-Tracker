@@ -1,0 +1,1 @@
+// Full JavaScript code goes here (omitted due to space)
