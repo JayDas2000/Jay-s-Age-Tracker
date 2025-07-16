@@ -1,0 +1,325 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Age Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="style.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <h2>🎂 Age Tracker</h2>
+
+  <form id="dobForm">
+    <label for="name">Name</label>
+    <input type="text" id="name" placeholder="Enter Name" required>
+
+    <label for="dob">Date of Birth</label>
+    <input type="date" id="dob" required>
+
+    <button type="submit">➕ Add Person</button>
+  </form>
+
+  <input type="text" id="searchInput" placeholder="🔍 Search by Name...">
+
+  <div id="peopleList"></div>
+
+  <script src="script.js"></script>
+</body>
+</html><style>* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(135deg, #dbeafe, #f0f9ff);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #111;
+  min-height: 100vh;
+}
+
+h2 {
+  font-size: 2rem;
+  margin-bottom: 24px;
+  font-weight: 600;
+}
+
+form {
+  width: 100%;
+  max-width: 420px;
+  background: rgba(255,255,255,0.65);
+  backdrop-filter: blur(20px);
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+}
+
+label {
+  margin: 8px 0 4px;
+  display: block;
+  font-weight: 500;
+}
+
+input[type="text"],
+input[type="date"],
+#searchInput {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 12px;
+  font-size: 1rem;
+  border-radius: 12px;
+  border: none;
+  background: rgba(255,255,255,0.85);
+}
+
+input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #007aff88;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  font-size: 1rem;
+  background-color: #007aff;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #005fc1;
+}
+
+#peopleList {
+  width: 100%;
+  max-width: 420px;
+}
+
+.person-card {
+  background: rgba(255,255,255,0.6);
+  backdrop-filter: blur(20px);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  transition: transform 0.2s ease;
+}
+
+.person-card:hover {
+  transform: scale(1.01);
+}
+
+.card-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.icon-btn:hover {
+  background: rgba(0,0,0,0.08);
+  transform: scale(1.15);
+}
+
+.icon-btn:active {
+  transform: scale(0.95);
+}
+
+.icon-btn.move {
+  cursor: grab;
+}
+.icon-btn.move:active {
+  cursor: grabbing;
+}
+
+.dragging {
+  opacity: 0.6;
+  transform: scale(1.03);
+}
+
+/* Bounce animation on add */
+@keyframes bounce {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+.bounce {
+  animation: bounce 0.3s ease;
+}</style><script>const form = document.getElementById("dobForm");
+const list = document.getElementById("peopleList");
+const searchInput = document.getElementById("searchInput");
+let editingIndex = null;
+let draggedElement = null;
+let dragEnabled = false;
+
+function calculateAgeDetailed(dob) {
+  const birth = new Date(dob);
+  const today = new Date();
+
+  let years = today.getFullYear() - birth.getFullYear();
+  let months = today.getMonth() - birth.getMonth();
+  let days = today.getDate() - birth.getDate();
+
+  if (days < 0) {
+    months--;
+    const prevMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+    days += prevMonth.getDate();
+  }
+
+  if (months < 0) {
+    years--;
+    months += 12;
+  }
+
+  return { years, months, days };
+}
+
+function loadPeople(filter = "") {
+  const data = JSON.parse(localStorage.getItem("people") || "[]");
+  list.innerHTML = "";
+
+  data.forEach((person, index) => {
+    if (!person.name.toLowerCase().includes(filter.toLowerCase())) return;
+
+    const age = calculateAgeDetailed(person.dob);
+    const ageText = `${age.years} yrs, ${age.months} mo, ${age.days} d`;
+
+    const card = document.createElement("div");
+    card.className = "person-card bounce";
+    card.setAttribute("data-index", index);
+    card.setAttribute("draggable", false);
+
+    card.innerHTML = `
+      <div>
+        <strong>${person.name}</strong><br>
+        Age: ${ageText}
+      </div>
+      <div class="card-actions">
+        <button class="icon-btn" onclick="editPerson(${index})" title="Edit">✏️</button>
+        <button class="icon-btn" onclick="deletePerson(${index})" title="Delete">🗑️</button>
+        <button class="icon-btn move" title="Hold to Move"
+          onmousedown="enableDrag(this)"
+          onmouseup="disableDrag()"
+          ontouchstart="enableDrag(this)"
+          ontouchend="disableDrag()">↕️</button>
+      </div>
+    `;
+
+    card.addEventListener("animationend", () => card.classList.remove("bounce"));
+    card.addEventListener("dragstart", dragStart);
+    card.addEventListener("dragover", dragOver);
+    card.addEventListener("drop", dragDrop);
+    card.addEventListener("dragend", dragEnd);
+
+    list.appendChild(card);
+  });
+}
+
+function enableDrag(btn) {
+  const card = btn.closest(".person-card");
+  card.setAttribute("draggable", true);
+  dragEnabled = true;
+}
+
+function disableDrag() {
+  dragEnabled = false;
+  document.querySelectorAll(".person-card").forEach(card => {
+    card.setAttribute("draggable", false);
+  });
+}
+
+function dragStart(e) {
+  if (!dragEnabled) return e.preventDefault();
+  draggedElement = this;
+  this.classList.add("dragging");
+}
+
+function dragOver(e) {
+  e.preventDefault();
+  const target = this;
+  if (!draggedElement || target === draggedElement) return;
+
+  const cards = Array.from(list.children);
+  const draggedIndex = cards.indexOf(draggedElement);
+  const targetIndex = cards.indexOf(target);
+
+  if (draggedIndex < targetIndex) {
+    list.insertBefore(draggedElement, target.nextSibling);
+  } else {
+    list.insertBefore(draggedElement, target);
+  }
+}
+
+function dragDrop() {
+  const newOrder = Array.from(list.children).map(card => {
+    const index = +card.getAttribute("data-index");
+    return JSON.parse(localStorage.getItem("people"))[index];
+  });
+  localStorage.setItem("people", JSON.stringify(newOrder));
+  loadPeople(searchInput.value.trim());
+}
+
+function dragEnd() {
+  this.classList.remove("dragging");
+  draggedElement = null;
+}
+
+function editPerson(index) {
+  const data = JSON.parse(localStorage.getItem("people") || "[]");
+  document.getElementById("name").value = data[index].name;
+  document.getElementById("dob").value = data[index].dob;
+  editingIndex = index;
+}
+
+function deletePerson(index) {
+  const data = JSON.parse(localStorage.getItem("people") || "[]");
+  data.splice(index, 1);
+  localStorage.setItem("people", JSON.stringify(data));
+  loadPeople(searchInput.value.trim());
+}
+
+form.onsubmit = (e) => {
+  e.preventDefault();
+  const name = document.getElementById("name").value.trim();
+  const dob = document.getElementById("dob").value;
+  if (!name || !dob) return alert("Please fill out both fields.");
+
+  const data = JSON.parse(localStorage.getItem("people") || "[]");
+
+  if (editingIndex !== null) {
+    data[editingIndex] = { name, dob };
+    editingIndex = null;
+  } else {
+    data.push({ name, dob });
+  }
+
+  localStorage.setItem("people", JSON.stringify(data));
+  form.reset();
+  loadPeople(searchInput.value.trim());
+};
+
+searchInput.addEventListener("input", () => {
+  loadPeople(searchInput.value.trim());
+});
+
+window.onload = () => loadPeople();</script>
